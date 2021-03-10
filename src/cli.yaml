@@ -1,0 +1,35 @@
+name: todo
+version: "0.1.0"
+about: Simple CLI application to track a personal todo list.
+author: Sam Larson <sam@slars.dev>
+
+# AppSettings can be defined as a list and are **not** ascii case sensitive
+settings:
+    - ArgRequiredElseHelp
+
+# All Args must be defined in the 'args:' list where the name of the arg, is the
+# key to a Hash object
+args:
+    - mode:
+        long: mode
+        help: shows an option with specific values
+        # possible_values can also be defined in this list format
+        possible_values: [ vi, emacs ]
+        takes_value: true
+
+
+subcommands:
+    - subcmd:
+        about: demo subcommand
+        version: "0.1.0"
+        author: Sam Larson <sam@slars.dev>
+        args:
+            - scopt:
+                short: B
+                multiple: true
+                help: example subcommand option
+                takes_value: true
+            - scpos1:
+                help: example subcommand positional
+                index: 1
+
