@@ -13,23 +13,67 @@ args:
     - mode:
         long: mode
         help: shows an option with specific values
-        # possible_values can also be defined in this list format
         possible_values: [ vi, emacs ]
         takes_value: true
 
 
 subcommands:
-    - subcmd:
-        about: demo subcommand
-        version: "0.1.0"
-        author: Sam Larson <sam@slars.dev>
+    - add:
+        about: Add an entry to the todo list
+    - edit:
+        about: Edit the fields of an entry in the todo list
         args:
-            - scopt:
-                short: B
-                multiple: true
-                help: example subcommand option
-                takes_value: true
-            - scpos1:
-                help: example subcommand positional
+            - itemid:
+                help: The ID of the entry to be edited
                 index: 1
-
+                required: true
+    - list:
+        about: Output the full list contents
+        args:
+            - listname:
+                help: The name of the list
+                index: 1
+                takes_value: true
+                possible_values: [ todo, active, done ]
+    - assign:
+        about: Move an item between lists (todo/active/done)
+        subcommands:
+            - todo:
+                about: Move an item to the todo list
+                args:
+                    - itemid:
+                        help: The ID of the entry to be edited
+                        index: 1
+                        required: true
+            - active:
+                about: Move an item to the active list
+                subcommands:
+                    - item:
+                        about: Assign an item to active
+                        args:
+                            - itemid:
+                                help: The ID of the entry to be edited
+                                index: 1
+                                required: true
+                    - rand:
+                        about: Assign a random item to active
+                        args:
+                            - priority:
+                                help: Priority option to filter items for random assignment
+                                short: P
+                                long: priority
+                                takes_value: true
+                                possible_values: [ low, medium, high ]
+                            - size:
+                                help: Size option to filter items for random assignment
+                                short: S
+                                long: size
+                                takes_value: true
+                                possible_values: [ small, medium, large ]
+            - done:
+                about: Move an item to the done list
+                args:
+                    - itemid:
+                        help: The ID of the entry to be edited
+                        index: 1
+                        required: true
