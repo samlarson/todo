@@ -33,6 +33,7 @@ subcommands:
             - listname:
                 help: The name of the list
                 index: 1
+                required: true
                 takes_value: true
                 possible_values: [ todo, active, done ]
     - assign:
