@@ -43,25 +43,55 @@ fn get_item_fields() -> [String; 5] {
     println!("Description:");
     io::stdin()
         .read_line(&mut descr)
-        .expect("Error reading user input");
-    println!("Priority [low | medium | high]:");
+        .expect("Error reading user input - description");
+    if descr == "\n" {
+        panic!("You must enter a description for new entries");
+    } else {
+        descr.pop();
+    }
+
+    println!("Priority [low | medium | high] (l/m/h):");
     io::stdin()
         .read_line(&mut priority)
-        .expect("Error reading user input");
-    println!("Size [small | medium | large]:");
+        .expect("Error reading user input - priority");
+    if priority == "l\n" {
+        priority = "low".parse().unwrap();
+    } else if priority == "m\n" {
+        priority = "medium".parse().unwrap();
+    } else if priority == "h\n" {
+        priority = "high".parse().unwrap();
+    } else {
+        priority.pop();
+    }
+
+    println!("Size [small | medium | large] (s/m/l):");
     io::stdin()
         .read_line(&mut size)
-        .expect("Error reading user input");
-    println!("Tags [<TAG1>, <TAG2>, ...]:");
+        .expect("Error reading user input - size");
+    if size == "s\n" {
+        size = "small".parse().unwrap();
+    } else if size == "m\n" {
+        size = "medium".parse().unwrap();
+    } else if size == "l\n" {
+        size = "large".parse().unwrap();
+    }
+    else {
+        size.pop();
+    }
+
+    println!("(Optional) Tags [<TAG1>, <TAG2>, ...]:");
     io::stdin()
         .read_line(&mut tags)
-        .expect("Error reading user input");
+        .expect("Error reading user input - tags");
+    tags.pop();
+
+    // TODO: assert input is a valid date
+    // https://docs.rs/time/0.2.22/time/struct.Date.html
     println!("(Optional) Due Date [MM/DD/YYYY]:");
     io::stdin()
         .read_line(&mut due_date)
-        .expect("Error reading user input");
-
-    // descr.trim();
+        .expect("Error reading user input - due date");
+    due_date.pop();
 
     let array = [descr, priority, size, tags, due_date];
     array
@@ -114,7 +144,7 @@ fn max_list_id(list: &Vec<Item>) -> i32 {
 
 fn get_curr_date() -> String {
     let local: Date<Local> = Local::today();
-    let date = local.format("%m-%d-Y").to_string();
+    let date = local.format("%m-%d-%Y").to_string();
     date
 }
 
@@ -191,7 +221,6 @@ fn main() {
 
 }
 
-// TODO: create_date year is 'Y', truncate new entry newlines, catch empty due_date entry
 // TODO: clean up write_entry()
-// TODO: handle categorical variables in struct, catch for them via clap
+// TODO: handle categorical variables in struct?
 // TODO: move on to the next subcommand, start to thing about handling next level down
