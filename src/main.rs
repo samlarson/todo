@@ -5,6 +5,9 @@ extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 
+#[macro_use] extern crate prettytable;
+use prettytable::{Table, Row, Cell};
+
 use std::io;
 use std::fs::File;
 use std::fs::write;
@@ -87,7 +90,7 @@ fn get_item_fields() -> [String; 5] {
 
     // TODO: assert input is a valid date
     // https://docs.rs/time/0.2.22/time/struct.Date.html
-    println!("(Optional) Due Date [MM/DD/YYYY]:");
+    println!("(Optional) Due Date [MM-DD-YYYY]:");
     io::stdin()
         .read_line(&mut due_date)
         .expect("Error reading user input - due date");
@@ -125,8 +128,28 @@ fn read_list(list_name: &str) -> Result<Vec<Item>, Error> {
 
 fn display_list(list: Vec<Item>) {
     println!("Displaying contents of list...");
+    // for elem in list.iter() {
+    //     println!("{:?}", elem);
+    // }
+
+    let mut table = Table::new();
+    table.add_row(row!["ID", "Description", "Priority", "Size", "Tags", "Create Date", "Due Date"]);
+
     for elem in list.iter() {
-        println!("{:?}", elem);
+        // println!("{:?}", elem);
+        table.add_row(row![elem.id, elem.descr, elem.priority, elem.size,
+        check_empty_elem(&elem.tags), elem.create_date, check_empty_elem(&elem.due_date)]);
+    }
+    table.printstd();
+}
+
+fn check_empty_elem(elem: &str) -> String {
+    if elem.is_empty() == true {
+        let fmt_val = String::from("None");
+        fmt_val
+    }
+    else {
+        elem.to_string()
     }
 }
 
@@ -174,16 +197,27 @@ fn write_entry(mut todo_list: Vec<Item>, field_array: [String; 5]) -> Result<(),
         due_date: field_array[4].clone()
     };
 
-    // serde_json::to_writer(&file, &entry);
-    // let entry_array: Item = serde_json::from_str(&entry)?;
+    // println!("{}", field_array[4]);
 
-    let x: String = serde_json::to_string_pretty(&entry).unwrap();
-    todo_list.push(entry_struct);
-    let serialized = serde_json::to_string_pretty(&todo_list).unwrap();
+    // let naive_due = NaiveDate::parse_from_str(&entry_struct.due_date, "%m-%d-%Y").unwrap();
+    let naive_due = NaiveDate::parse_from_str(&field_array[4], "%m-%d-%Y").unwrap();
+    let x: Date<Local> = Local.from_local_date(&naive_due).unwrap();
+    let naive_curr: Date<Local> = Local::today();
 
-    write("/home/eidolon/git/todo/src/todo.json", serialized).expect("Unable to write file");
+    if naive_curr > x {
+        panic!("The date specified in the Due Date field has already passed.");
+    }
+    else {
+        // serde_json::to_writer(&file, &entry);
+        // let entry_array: Item = serde_json::from_str(&entry)?;
+        // let x: String = serde_json::to_string_pretty(&entry).unwrap();
 
-    Ok(())
+        todo_list.push(entry_struct);
+        let serialized = serde_json::to_string_pretty(&todo_list).unwrap();
+
+        write("/home/eidolon/git/todo/src/todo.json", serialized).expect("Unable to write file");
+        Ok(())
+    }
 }
 
 fn main() {
@@ -217,7 +251,6 @@ fn main() {
         }
         _ => {},
     }
-
 
 }
 
